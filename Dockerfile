@@ -11,12 +11,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         gnupg \
         ca-certificates \
         libgomp1 \
-    && mkdir -p /usr/share/keyrings \
     # Download and store the GCP APT key in the keyring file that 'signed-by' uses
     # Add the repo exactly once (no -a for append)
-    && apt-get update \
+    && apt-get update 
 
 # Copy your application code into the image
+
+
 COPY . .
 
 
