@@ -1,0 +1,140 @@
+/* ---------- GLOBAL ---------- */
+body {
+    font-family: "Inter", Arial, sans-serif;
+    background: linear-gradient(135deg, #cbe7ff, #eaf3ff);
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+/* ---------- CONTAINER CARD ---------- */
+.container {
+    width: 92%;
+    max-width: 480px;
+    margin-top: 40px;
+    padding: 28px;
+    background: #ffffff;
+    border-radius: 14px;
+    box-shadow: 0 10px 35px rgba(0, 0, 0, 0.08);
+    animation: fadeSlideIn 0.7s ease forwards;
+    transform: translateY(10px);
+    opacity: 0;
+}
+
+@keyframes fadeSlideIn {
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+h2 {
+    text-align: center;
+    margin-bottom: 28px;
+    font-weight: 700;
+    font-size: 24px;
+    color: #0d47a1;
+}
+
+/* ---------- FORM GROUPS ---------- */
+.form-group {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+label {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: #003366;
+}
+
+/* Inputs + Selects */
+input[type="number"],
+select {
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 8px;
+    border: 1.5px solid #baccdd;
+    background: #fdfdfd;
+    font-size: 15px;
+    transition: 0.25s ease;
+    outline: none;
+    box-sizing: border-box;
+}
+
+input:focus,
+select:focus {
+    border-color: #1b76ff;
+    box-shadow: 0 0 4px rgba(27, 118, 255, 0.3);
+    background: #ffffff;
+    transform: scale(1.01);
+}
+
+/* ---------- BUTTON ---------- */
+button {
+    width: 100%;
+    padding: 14px 0;
+    margin-top: 10px;
+    border: none;
+    border-radius: 8px;
+    background: #1b76ff;
+    color: #fff;
+    font-weight: 600;
+    font-size: 17px;
+    cursor: pointer;
+    transition: 0.25s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+button:hover {
+    background: #0056d6;
+    transform: translateY(-1px);
+}
+
+/* Ripple animation */
+button:active::after {
+    content: "";
+    position: absolute;
+    width: 180%;
+    height: 180%;
+    background: rgba(255, 255, 255, 0.3);
+    top: 50%;
+    left: 50%;
+    border-radius: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    animation: ripple 0.45s ease-out forwards;
+}
+
+@keyframes ripple {
+    to {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 0;
+    }
+}
+
+/* ---------- PREDICTION RESULT BOX ---------- */
+.result {
+    margin-top: 20px;
+    padding: 14px 16px;
+    background: #e9f5ff;
+    border-radius: 8px;
+    border: 1.5px solid #b7d7ff;
+    animation: fadePop 0.4s ease;
+}
+
+@keyframes fadePop {
+    from { opacity: 0; transform: scale(0.97); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.result p {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 600;
+    color: #003c80;
+}
