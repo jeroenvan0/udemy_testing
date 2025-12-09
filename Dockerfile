@@ -1,35 +1,30 @@
+# Use a lightweight Python image
 FROM python:slim
 
+# Set environment variables to prevent Python from writing .pyc files & Ensure Python output is not buffered
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
 
+# Set the working directory
 WORKDIR /app
 
-# Install system deps + Google Cloud CLI
+# Install system dependencies required by LightGBM
 RUN apt-get update && apt-get install -y --no-install-recommends \
-        curl \
-        gnupg \
-        ca-certificates \
-        libgomp1 \
-    # Download and store the GCP APT key in the keyring file that 'signed-by' uses
-    # Add the repo exactly once (no -a for append)
-    && apt-get update 
+    libgomp1 \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
-# Copy your application code into the image
-
-
+# Copy the application code
 COPY . .
 
-
-
-
-
-# Install Python dependencies
+# Install the package in editable mode
 RUN pip install --no-cache-dir -e .
 
-# Run your training pipeline at build time (if intended)
-RUN python pipeline/training_pipeline.py
+# Train the model before running the application
+RUN python main.py
 
-EXPOSE 8080
+# Expose the port that Flask will run on
+EXPOSE 5000
 
+# Command to run the app
 CMD ["python", "application.py"]
