@@ -13,6 +13,21 @@ RUN apt-get update -y && \
     apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin && \
     apt-get clean
 
+# Install Google Cloud SDK
+RUN mkdir -p /var/jenkins_home && \
+    ARCH=$(dpkg --print-architecture) && \
+    if [ "$ARCH" = "arm64" ]; then \
+        curl -O https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-linux-arm.tar.gz && \
+        tar -xzf google-cloud-cli-linux-arm.tar.gz -C /var/jenkins_home && \
+        rm google-cloud-cli-linux-arm.tar.gz; \
+    else \
+        curl -O https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-linux-x86_64.tar.gz && \
+        tar -xzf google-cloud-cli-linux-x86_64.tar.gz -C /var/jenkins_home && \
+        rm google-cloud-cli-linux-x86_64.tar.gz; \
+    fi && \
+    /var/jenkins_home/google-cloud-sdk/install.sh --quiet --usage-reporting=false --path-update=false && \
+    chown -R jenkins:jenkins /var/jenkins_home/google-cloud-sdk
+
 # Add Jenkins user to the Docker group (create if it doesn't exist)
 RUN groupadd -f docker && \
     usermod -aG docker jenkins
