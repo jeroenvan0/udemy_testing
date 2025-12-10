@@ -3,3 +3,61 @@ mlruns/
 logs/
 ML_OPS_PROJECT1.egg-info/
 
+# Google Cloud SDK (should be installed on Jenkins server, not in repo)
+var/
+
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Model files and data
+*.pkl
+*.h5
+*.hdf5
+*.joblib
+*.csv
+*.parquet
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Artifacts and processed data
+artifacts/
+processed/
+raw/
+
+# Environment files
+.env
+.env.local
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+*.egg
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# MLflow
+mlflow.db
