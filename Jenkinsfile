@@ -28,8 +28,27 @@ pipeline{
                     script{
                         echo 'Building and Pushing Docker Image to GCR.............'
                         sh '''
-                        export PATH=$PATH:${GCLOUD_PATH}
-
+                        # Check if gcloud is available, try to find it
+                        if ! command -v gcloud &> /dev/null; then
+                            echo "gcloud not found in PATH, checking common locations..."
+                            # Try common installation paths
+                            for gcloud_path in "/usr/bin/gcloud" "/usr/local/bin/gcloud" "${GCLOUD_PATH}/gcloud" "$HOME/google-cloud-sdk/bin/gcloud"; do
+                                if [ -f "$gcloud_path" ] && [ -x "$gcloud_path" ]; then
+                                    echo "Found gcloud at: $gcloud_path"
+                                    export PATH=$PATH:$(dirname "$gcloud_path")
+                                    break
+                                fi
+                            done
+                            
+                            # Verify gcloud is now available
+                            if ! command -v gcloud &> /dev/null; then
+                                echo "ERROR: gcloud command not found. Please install Google Cloud SDK."
+                                echo "You can install it by running: curl https://sdk.cloud.google.com | bash"
+                                exit 1
+                            fi
+                        fi
+                        
+                        echo "Using gcloud at: $(which gcloud)"
 
                         gcloud auth activate-service-account --key-file=${GOOGLE_APPLICATION_CREDENTIALS}
 
@@ -54,8 +73,27 @@ pipeline{
                     script{
                         echo 'Deploy to Google Cloud Run.............'
                         sh '''
-                        export PATH=$PATH:${GCLOUD_PATH}
-
+                        # Check if gcloud is available, try to find it
+                        if ! command -v gcloud &> /dev/null; then
+                            echo "gcloud not found in PATH, checking common locations..."
+                            # Try common installation paths
+                            for gcloud_path in "/usr/bin/gcloud" "/usr/local/bin/gcloud" "${GCLOUD_PATH}/gcloud" "$HOME/google-cloud-sdk/bin/gcloud"; do
+                                if [ -f "$gcloud_path" ] && [ -x "$gcloud_path" ]; then
+                                    echo "Found gcloud at: $gcloud_path"
+                                    export PATH=$PATH:$(dirname "$gcloud_path")
+                                    break
+                                fi
+                            done
+                            
+                            # Verify gcloud is now available
+                            if ! command -v gcloud &> /dev/null; then
+                                echo "ERROR: gcloud command not found. Please install Google Cloud SDK."
+                                echo "You can install it by running: curl https://sdk.cloud.google.com | bash"
+                                exit 1
+                            fi
+                        fi
+                        
+                        echo "Using gcloud at: $(which gcloud)"
 
                         gcloud auth activate-service-account --key-file=${GOOGLE_APPLICATION_CREDENTIALS}
 
