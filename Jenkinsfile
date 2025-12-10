@@ -1,84 +1,86 @@
-pipeline {
+pipeline{
     agent any
 
     environment {
-        VENV_DIR    = 'venv'
-        GCP_PROJECT = 'udemy-training-480608'
-        GCLOUD_PATH = '/var/jenkins_home/google-cloud-sdk/bin'
+        VENV_DIR = 'venv'
+        GCP_PROJECT = "mlops-new-447207"
+        GCLOUD_PATH = "/var/jenkins_home/google-cloud-sdk/bin"
     }
-    
-    stages {
-        stage('Cloning github repos to Jenkins') {
-            steps {
-                script {
-                    echo 'Cloning github repo to Jenkins....'
-                    checkout scmGit(
-                        branches: [[name: '*/main']],
-                        extensions: [],
-                        userRemoteConfigs: [[
-                            credentialsId: 'github-token',
-                            url: 'https://github.com/jeroenvan0/udemy_testing'
-                        ]]
-                    )
+
+    stages{
+        stage('Cloning Github repo to Jenkins'){
+            steps{
+                script{
+                    echo 'Cloning Github repo to Jenkins............'
+                    checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[credentialsId: 'github-token', url: 'https://github.com/data-guru0/MLOPS-COURSE-PROJECT-1.git']])
                 }
             }
         }
 
-        stage('Setting up Python Virtual Environment and installing dependencies') {
-            steps {
-                script {
-                    echo 'Setting up Python Virtual Environment and installing dependencies.....'
+        stage('Setting up our Virtual Environment and Installing dependancies'){
+            steps{
+                script{
+                    echo 'Setting up our Virtual Environment and Installing dependancies............'
                     sh '''
-                        python3 -m venv ${VENV_DIR}
-                        . ${VENV_DIR}/bin/activate
-                        pip install --upgrade pip
-                        pip install -e .
+                    python -m venv ${VENV_DIR}
+                    . ${VENV_DIR}/bin/activate
+                    pip install --upgrade pip
+                    pip install -e .
                     '''
                 }
             }
         }
 
-        stage('Building and pushing docker image to GCR') {
-            steps {
-                withCredentials([file(credentialsId: 'gcp-key', variable: 'GOOGLE_APPLICATION_CREDENTIALS')]) {
-                    script {
-                        echo 'Building and pushing docker image to GCR.....'
+        stage('Building and Pushing Docker Image to GCR'){
+            steps{
+                withCredentials([file(credentialsId: 'gcp-key' , variable : 'GOOGLE_APPLICATION_CREDENTIALS')]){
+                    script{
+                        echo 'Building and Pushing Docker Image to GCR.............'
                         sh '''
-                            # Verify gcloud is available
-                            if [ ! -f "${GCLOUD_PATH}/gcloud" ]; then
-                                echo "ERROR: gcloud not found at ${GCLOUD_PATH}/gcloud"
-                                exit 1
-                            fi
-                            
-                            # Use full path to gcloud
-                            GCLOUD_CMD="${GCLOUD_PATH}/gcloud"
-                            
-                            # Verify key file exists and is readable
-                            if [ ! -f "${GOOGLE_APPLICATION_CREDENTIALS}" ]; then
-                                echo "ERROR: Key file not found at ${GOOGLE_APPLICATION_CREDENTIALS}"
-                                exit 1
-                            fi
-                            
-                            echo "Key file path: ${GOOGLE_APPLICATION_CREDENTIALS}"
-                            echo "Key file exists: $(test -f ${GOOGLE_APPLICATION_CREDENTIALS} && echo 'yes' || echo 'no')"
-                            echo "Key file readable: $(test -r ${GOOGLE_APPLICATION_CREDENTIALS} && echo 'yes' || echo 'no')"
-                            
-                            # Authenticate with service account
-                            ${GCLOUD_CMD} auth activate-service-account --key-file=${GOOGLE_APPLICATION_CREDENTIALS}
-                            
-                            # Set project
-                            ${GCLOUD_CMD} config set project ${GCP_PROJECT}
-                            
-                            # Configure Docker authentication
-                            ${GCLOUD_CMD} auth configure-docker --quiet
+                        export PATH=$PATH:${GCLOUD_PATH}
 
-                            # Build and push Docker image
-                            docker build -t gcr.io/${GCP_PROJECT}/ml-project:latest .
-                            docker push gcr.io/${GCP_PROJECT}/ml-project:latest
+
+                        gcloud auth activate-service-account --key-file=${GOOGLE_APPLICATION_CREDENTIALS}
+
+                        gcloud config set project ${GCP_PROJECT}
+
+                        gcloud auth configure-docker --quiet
+
+                        docker build -t gcr.io/${GCP_PROJECT}/ml-project:latest .
+
+                        docker push gcr.io/${GCP_PROJECT}/ml-project:latest 
+
                         '''
                     }
                 }
             }
         }
+
+
+        stage('Deploy to Google Cloud Run'){
+            steps{
+                withCredentials([file(credentialsId: 'gcp-key' , variable : 'GOOGLE_APPLICATION_CREDENTIALS')]){
+                    script{
+                        echo 'Deploy to Google Cloud Run.............'
+                        sh '''
+                        export PATH=$PATH:${GCLOUD_PATH}
+
+
+                        gcloud auth activate-service-account --key-file=${GOOGLE_APPLICATION_CREDENTIALS}
+
+                        gcloud config set project ${GCP_PROJECT}
+
+                        gcloud run deploy ml-project \
+                            --image=gcr.io/${GCP_PROJECT}/ml-project:latest \
+                            --platform=managed \
+                            --region=us-central1 \
+                            --allow-unauthenticated
+                            
+                        '''
+                    }
+                }
+            }
+        }
+        
     }
 }
